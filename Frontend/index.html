@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flavora - Gourmet Experience</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div id="toast"></div>
+
+<nav class="navbar">
+    <div class="logo">
+        <i class="fas fa-utensils"></i> FLAVORA
+    </div>
+    <ul class="nav-links">
+        <li><a href="#special"><i class="fas fa-star"></i> Specials</a></li>
+        <li><a href="#menuSection"><i class="fas fa-book-open"></i> Menu</a></li>
+        <li>
+            <button class="cart-btn" onclick="goToCart()">
+                 <i class="fas fa-shopping-cart"></i> Cart (<span id="count">0</span>)
+            </button>
+        </li>
+    </ul>
+</nav>
+
+<section class="hero">
+    <div class="overlay">
+         <h1>Where Flavor <br> Meets Tradition</h1>
+        <p>A celebration of rich biryanis, delicious starters, and indulgent desserts crafted to make every bite memorable.</p>
+        <button onclick="scrollMenu()">Explore Menu</button>
+    </div>
+</section>
+
+<section id="special">
+    <h2>Today's Specials</h2>
+    <p>Crafted with passion, served with perfection.</p>
+    <div class="cards">
+        <div class="card">
+            <img src="./assets/b3.jpg" >
+            <h3>Prawn Biryani</h3>
+        </div>
+        <div class="card">
+            <img src="./assets/b8.jpg" >
+            <h3>Paneer tikka</h3>
+        </div>
+        <div class="card">
+            <img src="./assets/b14.jpg">
+            <h3>Apollo Fish Fry</h3>
+        </div>
+        <div class="card">
+            <img src="./assets/b17.jpg" >
+            <h3>vButterscotch Sundae</h3>
+        </div>
+    </div>
+</section>
+
+<section id="menuSection">
+    <h1>Our Menu</h1>
+    <p>Discover our range of timeless classics and modern delights.</p>
+    <div class="filters">
+        <button onclick="filterItems('all')" class="active">All</button>
+        <button onclick="filterItems('biryani')">Biryani</button>
+        <button onclick="filterItems('starters')">Starters</button>
+        <button onclick="filterItems('desserts')">Desserts</button>
+        <button onclick="filterItems('mocktails')">Mocktails</button>
+    </div>
+    <div class="menu-container" id="menu"></div>
+</section>
+
+<script src="script.js"></script>
+</body>
+</html>

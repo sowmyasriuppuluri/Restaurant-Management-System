@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Bill - Flavora</title>
+
+<style>
+body{
+    font-family: Arial;
+    background:#f5e6d3;
+    text-align:center;
+}
+
+.bill-box{
+    background:white;
+    max-width:400px;
+    margin:30px auto;
+    padding:20px;
+    border-radius:10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.item{
+    display:flex;
+    justify-content:space-between;
+    margin:8px 0;
+}
+
+.total{
+    font-size:18px;
+    font-weight:bold;
+    margin-top:10px;
+}
+
+button{
+    margin-top:15px;
+    padding:10px 18px;
+    background:#8b2d14;
+    color:white;
+    border:none;
+    cursor:pointer;
+    border-radius:5px;
+}
+
+button:hover{
+    background:#6f210f;
+}
+
+button:disabled{
+    background:gray;
+    cursor:not-allowed;
+}
+
+.empty{
+    margin-top:50px;
+}
+
+a{
+    display:inline-block;
+    margin-top:10px;
+    text-decoration:none;
+    background:#8b2d14;
+    color:white;
+    padding:8px 15px;
+    border-radius:5px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="bill-box">
+    <h2>🧾 Flavora Bill</h2>
+
+    <p id="date"></p>
+
+    <div id="items"></div>
+
+    <div class="total" id="total"></div>
+
+    <button id="orderBtn" onclick="placeOrder()" disabled>
+        Print & Place Order
+    </button>
+</div>
+
+<script>
+
+let currentBill = null;
+
+//  PAGE LOAD
+window.onload = function () {
+
+    let cart = JSON.parse(localStorage.getItem("cart")) || [];
+
+    //  EMPTY CART
+    if (cart.length === 0) {
+        document.body.innerHTML = `
+            <div class="empty">
+                <h2>🛒 Your Cart is Empty</h2>
+                <a href="index.html#menuSection">Browse Menu</a>
+            </div>
+        `;
+        return;
+    }
+
+    //  BACKEND 
+    fetch("http://localhost:8080/generate-bill", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(cart)
+    })
+    .then(res => {
+        if (!res.ok) {
+            throw new Error("Backend error: " + res.status);
+        }
+        return res.json();
+    })
+    .then(bill => {
+
+        currentBill = bill;
+
+        document.getElementById("date").innerText =
+            "Date: " + new Date(bill.date).toLocaleString();
+
+        let itemsDiv = document.getElementById("items");
+        itemsDiv.innerHTML = "";
+
+        bill.items.forEach(item => {
+            itemsDiv.innerHTML += `
+                <div class="item">
+                    <span>${item.name} x ${item.qty}</span>
+                    <span>₹${item.price * item.qty}</span>
+                </div>
+            `;
+        });
+
+        document.getElementById("total").innerText =
+            "Total: ₹" + bill.total;
+
+        // ENABLE BUTTON
+        document.getElementById("orderBtn").disabled = false;
+    })
+    .catch(err => {
+        console.error(err);
+        document.body.innerHTML = `
+            <h2>❌ Backend not connected</h2>
+            <p>Check if Spring Boot is running on correct port</p>
+        `;
+    });
+};
+
+
+// PLACE ORDER 
+async function placeOrder() {
+
+    if (!currentBill) {
+        alert("Bill not ready yet!");
+        return;
+    }
+
+    try {
+
+        const res = await fetch("http://localhost:8080/order-completed", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                status: "COMPLETED",
+                bill: currentBill,
+                time: new Date().toISOString()
+            })
+        });
+
+        if (!res.ok) {
+            throw new Error("Order failed: " + res.status);
+        }
+
+        const data = await res.json();
+        console.log("Order Success:", data);
+
+        // CLEAR CART
+        localStorage.removeItem("cart");
+
+        // PRINT
+        window.print();
+
+        // REDIRECT
+        setTimeout(() => {
+            window.location.href = "success.html";
+        }, 1000);
+
+    } catch (err) {
+        console.error(err);
+        alert("❌ Order Failed! Backend issue.");
+    }
+}
+
+</script>
+
+</body>
+</html>
